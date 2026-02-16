@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		},
+		{
+			"name": "esp32blink",
+			"path": "../esp32blink"
+		}
+	],
+	"settings": {}
+}
