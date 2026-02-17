@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../../esp32blink"
+		},
+		{
+			"name": "2btns2leds",
+			"path": "../2btns2leds"
+		}
+	],
+	"settings": {}
+}
