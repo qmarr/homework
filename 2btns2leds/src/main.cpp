@@ -42,7 +42,7 @@ void btnHandler(Button &btn)
 {
   uint16_t reading = digitalRead(btn.btnPin);
 
-  if (reading != btn.lastState) 
+  if (reading != btn.lastState)
   {
     btn.lastDebounceTime = millis();
   }
@@ -52,7 +52,8 @@ void btnHandler(Button &btn)
     if (reading != btn.state)
     {
       btn.state = reading;
-      if(btn.state == LOW) {
+      if (btn.state == LOW)
+      {
         btn.pressed = !btn.pressed;
         Serial.println("pressed");
       }
@@ -78,18 +79,41 @@ void loop()
     policeBlink(LED_PINS[0], LED_PINS[1], 500);
   }
 
-  // todo get rid of delay
 }
 
 void policeBlink(pin_t firstPin, pin_t secondPin, uint16_t milisecondsDelay)
 {
 
-  digitalWrite(firstPin, HIGH);
-  delay(milisecondsDelay);
+  uint32_t currMillis = millis();
+  static uint8_t state = 0;
 
-  digitalWrite(firstPin, LOW);
-  digitalWrite(secondPin, HIGH);
-  delay(milisecondsDelay);
+  static uint32_t lastTick = 0;
 
-  digitalWrite(secondPin, LOW);
+  if (currMillis - lastTick >= milisecondsDelay)
+  {
+
+    lastTick = currMillis;
+
+    switch (state)
+    {
+    case 0:
+      digitalWrite(firstPin, HIGH);
+      digitalWrite(secondPin, LOW);
+      break;
+    case 1:
+      digitalWrite(firstPin, LOW);
+      digitalWrite(secondPin, HIGH);
+      break;
+    case 2:
+      digitalWrite(firstPin, LOW);
+      digitalWrite(secondPin, LOW);
+      break;
+    }
+
+    state++;
+
+    if (state > 2)
+      state = 0;
+  }
 }
+//when button pressed to stop blinker, It can stop while one of leds Lighted. Also program can be stopped by just touching button not pressing
