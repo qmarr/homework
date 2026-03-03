@@ -5,6 +5,31 @@ constexpr uint8_t ADC_PERIOD{100};
 constexpr uint16_t ADC_MAX{4095};
 constexpr uint32_t UREF_MV{3300};
 
+uint32_t calcError(uint32_t calc_mV, uint32_t esp32mV)
+{
+  if (esp32mV == 0) return 0;
+
+  uint32_t difference = (((calc_mV > esp32mV)) ? calc_mV - esp32mV : (esp32mV - calc_mV));
+
+  return (difference * 100) / calc_mV;
+}
+
+void printvalues(uint32_t RAW, uint32_t calc_mV, uint32_t esp32mV)
+{
+  Serial.print("RAW: \t");
+  Serial.println(RAW);
+  Serial.print("Calc Volts: \t");
+  Serial.print(calc_mV);
+  Serial.println(" mV");
+  Serial.print("Millivots from method: \t");
+  Serial.print(esp32mV);
+  Serial.println(" mV");
+  Serial.print("Error: ");
+  Serial.print(calcError(calc_mV, esp32mV));
+  Serial.println("% ");
+  delay(2000);
+}
+
 void setup()
 {
   Serial.begin(115200);
@@ -13,15 +38,9 @@ void setup()
 
 void loop()
 {
-  uint16_t adc_value = analogRead(ADC_PIN);
-  uint16_t millivolts{analogReadMilliVolts(ADC_PIN)};
-  uint32_t volts = (adc_value * UREF_MV) / ADC_MAX;
+  uint32_t raw_value = analogRead(ADC_PIN);
+  uint32_t millivolts{analogReadMilliVolts(ADC_PIN)};
+  uint32_t calc_mvolts = (raw_value * UREF_MV) / ADC_MAX;
 
-  Serial.print("RAW: ");
-  Serial.println(adc_value);
-  Serial.print("Calc Volts: ");
-  Serial.println(volts);
-  Serial.print("Millivots from method: ");
-  Serial.println(millivolts);
-  delay(1000);
+  printvalues(raw_value, calc_mvolts, millivolts);
 }
