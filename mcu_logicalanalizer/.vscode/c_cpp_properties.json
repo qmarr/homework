@@ -8,7 +8,6 @@
         {
             "name": "PlatformIO",
             "includePath": [
-                "s:/Programming/emb_files/projects/homework/mcu_logicalanalizer/include",
                 "s:/Programming/emb_files/projects/homework/mcu_logicalanalizer/src",
                 "C:/Users/komar/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/newlib/platform_include",
                 "C:/Users/komar/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/freertos/include",
@@ -247,7 +246,6 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
-                    "s:/Programming/emb_files/projects/homework/mcu_logicalanalizer/include",
                     "s:/Programming/emb_files/projects/homework/mcu_logicalanalizer/src",
                     "C:/Users/komar/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/newlib/platform_include",
                     "C:/Users/komar/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/freertos/include",
