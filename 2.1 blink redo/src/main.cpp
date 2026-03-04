@@ -26,10 +26,13 @@ void loop()
 
   blink(conf1, led1);
 
-  uint32_t loopCurMs = millis();
-  uint32_t lastLoopTick{0};
-
-  if(loopCurMs - lastLoopTick >= )
-  Serial.print("Millis: ");
-  Serial.println(millis());
+  static uint32_t curLoopTick{0};
+  static uint32_t lastLoopTick{0};
+  if (curLoopTick - lastLoopTick >= 1000)
+  {
+    lastLoopTick = curLoopTick;
+    Serial.print("Millis: ");
+    Serial.println(millis());
+  }
+  curLoopTick++;
 }
