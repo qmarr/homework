@@ -15,9 +15,15 @@ Led::~Led()
 {
 }
 
-void Led::setLedState(LED_STATE st)
+void Led::setLedState(bool st)
 {
     state = st;
+}
+
+bool Led::makeStateOpposite()
+{
+    state = !state;
+    return state;
 }
 
 pin_t Led::getLedPin() const

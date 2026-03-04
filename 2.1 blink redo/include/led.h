@@ -3,13 +3,14 @@
 class Led
 {
 private:
-    LED_STATE state{LED_STATE::TURN_OFF};
+    bool state{false};
     pin_t pin{LED_PIN};
 
 public:
     void init();
     Led();
     ~Led();
-    void setLedState(LED_STATE st);
+    void setLedState(bool st);
+    bool makeStateOpposite();
     pin_t getLedPin() const;
 };
