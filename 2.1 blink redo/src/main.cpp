@@ -11,7 +11,7 @@ void blink(const Config &config, Led &ledToBlink)
   uint16_t curMillis = millis();
   static uint16_t lastTick{0};
 
-  if (curMillis - lastTick > config.getSpeed())
+  if (curMillis - lastTick >= config.getSpeed())
   {
     lastTick = curMillis;
     digitalWrite(ledToBlink.getLedPin(), ledToBlink.makeStateOpposite());
