@@ -8,10 +8,10 @@ void setup()
 
 void blink(const Config &config, Led &ledToBlink)
 {
-  uint16_t curMillis = millis();
-  static uint16_t lastTick{0};
+  uint32_t curMillis = millis();
+  static uint32_t lastTick{0};
 
-  if (curMillis - lastTick >= config.getSpeed())
+  if (curMillis - lastTick > config.getSpeed())
   {
     lastTick = curMillis;
     digitalWrite(ledToBlink.getLedPin(), ledToBlink.makeStateOpposite());
@@ -26,6 +26,10 @@ void loop()
 
   blink(conf1, led1);
 
+  uint32_t loopCurMs = millis();
+  uint32_t lastLoopTick{0};
+
+  if(loopCurMs - lastLoopTick >= )
   Serial.print("Millis: ");
   Serial.println(millis());
 }
