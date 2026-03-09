@@ -2,6 +2,12 @@
 
 enum Event : uint32_t
 {
-    TIMER_EVENT = 1 << 0,
-    BUTTON_EVENT = 1 << 1,
+    NONE_EVENT = 0,
+    BUTTON_EVENT = 1 << 0,
+};
+
+enum class LedState : uint8_t {
+    OFF,
+    ON, 
+    BLINK,
 };
