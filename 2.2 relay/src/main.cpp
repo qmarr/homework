@@ -1,18 +1,30 @@
-#include <Arduino.h>
+#include "relay.h"
 
-// put function declarations here:
-int myFunction(int, int);
+constexpr uint8_t RL_PIN{18};
 
-void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+void printState(const Relay &relay)
+{
+  if (relay.getStatus())
+  {
+    Serial.println("Relay turned on.");
+  }
+  else{
+    Serial.println("Relay turned off.");
+  }
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+Relay relay1(RL_PIN);
+
+void setup()
+{
+  Serial.begin(115200);
+  relay1.init();
 }
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+void loop()
+{
+  relay1.setStatus(true);
+  printState(relay1);
+  relay1.setStatus(false);
+  printState(relay1);
 }
