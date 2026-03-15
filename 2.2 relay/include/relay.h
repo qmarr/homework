@@ -7,7 +7,9 @@ class Relay
 {
 private:
     uint8_t pin;
-    bool status;
+    bool status{false};
+    uint64_t RLdelay{1000};
+    uint64_t lastTick{0};
 
 public:
     void init();
@@ -16,6 +18,7 @@ public:
     ~Relay();
     void setStatus(bool st);
     bool getStatus() const;
+    void switchRL(); 
 };
 
 inline void Relay::init()
@@ -27,7 +30,7 @@ Relay::Relay()
 {
 }
 
-inline Relay::Relay(uint8_t p) : pin(p)
+inline Relay::Relay(uint8_t p) : pin(p), status(false)
 {
 }
 
@@ -44,6 +47,17 @@ inline void Relay::setStatus(bool st)
 inline bool Relay::getStatus() const
 {
     return status;
+}
+
+inline void Relay::switchRL()
+{
+    uint64_t curMillis = millis();
+
+    if(curMillis - lastTick > RLdelay) {
+
+        lastTick = curMillis;
+        setStatus(!status);
+    }
 }
 
 #endif

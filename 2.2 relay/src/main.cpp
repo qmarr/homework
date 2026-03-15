@@ -23,8 +23,8 @@ void setup()
 
 void loop()
 {
-  relay1.setStatus(true);
+  relay1.switchRL();
+  delay(1000);
   printState(relay1);
-  relay1.setStatus(false);
-  printState(relay1);
+
 }
