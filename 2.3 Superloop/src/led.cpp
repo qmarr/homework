@@ -15,7 +15,7 @@ void Led::off()
 void Led::init()
 {
     pinMode(pin, OUTPUT);
-    digitalWrite(pin, LOW);
+    off();
 }
 
 Led::Led() : pin()
