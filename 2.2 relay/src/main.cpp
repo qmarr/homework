@@ -24,7 +24,6 @@ void setup()
 void loop()
 {
   relay1.switchRL();
-  delay(1000);
   printState(relay1);
 
 }
