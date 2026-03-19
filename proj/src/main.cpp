@@ -5,11 +5,13 @@ constexpr uint32_t BLINK_PERIOD_MS{500};
 constexpr uint8_t LED_PIN{5};
 constexpr uint8_t BTN_PIN{15};
 constexpr uint32_t ALARM_TICKS{1000}; // 1kHz
+constexpr uint32_t DEBOUNCE_MS{50};
 
 portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
 
 volatile uint32_t timer_ticks{0};
 volatile uint32_t button_presses{0};
+volatile uint32_t last_button_tick{0};
 
 hw_timer_t *timer{nullptr};
 
@@ -38,7 +40,13 @@ void IRAM_ATTR timer_isr()
 void IRAM_ATTR button_isr()
 {
     portENTER_CRITICAL_ISR(&mux);
-    button_presses++;
+    uint32_t now = timer_ticks; 
+
+    if (now - last_button_tick >= DEBOUNCE_MS)
+    {
+        last_button_tick = now;
+        button_presses++;
+    }
     portEXIT_CRITICAL_ISR(&mux);
 }
 
@@ -93,7 +101,7 @@ void setup()
     led.init();
 
     pinMode(BTN_PIN, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(BTN_PIN), &button_isr, FALLING);
+    attachInterrupt(digitalPinToInterrupt(BTN_PIN), &button_isr, CHANGE);
 
     timer = timerBegin(0, 80, true);
 
