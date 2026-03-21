@@ -1,57 +1,55 @@
 #include <stdio.h>
-#include <freertos/FreeRTOS.h>
+
 #include <freertos/task.h>
-#include <freertos/queue.h>
-#include <driver/gpio.h>
 #include <esp_timer.h>
+#include "esp_log.h"
 #include "sdkconfig.h"
 
-#define BTN_GPIO GPIO_NUM_15
-#define DEBOUNCE_DELAY_US 200000ULL
+#include "app_config.h"
+#include "button.h"
 
-static volatile last_isr_time = 0;
-static volatile uint32_t counter = 0;
+static QueueHandle_t s_button_queue = NULL;
 
-static QueueHandle_t button_queue;
+void app_main()
+{
+    static app_mode_t current_mode = MODE_TIME_DEBOUNCE;
 
-static void IRAM_ATTR button_isr(void *arg) {
-    uint64_t now =  esp_timer_get_time();
+    s_button_queue = xQueueCreate(BTN_QUEUE_LEN, sizeof(button_event_t));
+    configASSERT(s_button_queue != NULL);
 
-    if(now - last_isr_time >= DEBOUNCE_DELAY_US) {
-        counter++;
-        uint32_t cnt = counter;
-        BaseType_t higher_priority_task_woken = pdFALSE;
-        xQueueSendFromISR(button_queue, &cnt, &higher_priority_task_woken);
-        last_isr_time = now;
-        if(higher_priority_task_woken) 
-            portYIELD_FROM_ISR();
-    }
-}
+    button_init(s_button_queue);
 
-void app_main() {
+    uint32_t raw_interrupt_counter = 0;
+    uint64_t last_accepted_time_us = 0;
 
-    button_queue = xQueueCreate(10, sizeof(uint32_t));
+    button_event_t evt;
 
+    while (1)
+    {
+        if (xQueueReceive(s_button_queue, &evt, pdMS_TO_TICKS(100)))
+        {
+            raw_interrupt_counter++;
 
+            // 1st task
+            ESP_LOGI(TAG,
+                     "RAW ISR count=%" PRIu32 ", ts=%" PRIu64 " us, level=%d",
+                     raw_interrupt_counter, evt.timestamp_us, evt.level);
 
-    gpio_config_t io_conf = {
-        .intr_type = GPIO_INTR_POSEDGE,
-        .mode = GPIO_MODE_INPUT,
-        .pin_bit_mask = (1ULL << BTN_GPIO),
-        .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .pull_up_en = GPIO_PULLDOWN_ENABLE
-    };
-    gpio_config(&io_conf);
+            // 2nd task
 
-    gpio_install_isr_service(0);
+            if (evt.timestamp_us - last_accepted_time_us >= (DEBOUNCE_DELAY_US * 1000ULL))
+            {
+                last_accepted_time_us = evt.timestamp_us;
+                ESP_LOGI(TAG, "Accepted after time debounce");
+            } else {
+                ESP_LOGI(TAG, "Rejected by debounce");
+            }
 
-    gpio_isr_handler_add(BTN_GPIO, button_isr, NULL);
+            // 3rd task
 
-    uint32_t button_counter;
+            
 
-    while(1) {
-        if(xQueueReceive(button_queue, &button_counter, portMAX_DELAY)) {
-            printf("Button pressed %lu times.\n", button_counter);
+            vTaskDelay(pdMS_TO_TICKS(10));
         }
     }
 }
