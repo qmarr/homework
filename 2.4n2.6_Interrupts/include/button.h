@@ -8,18 +8,21 @@
 
 typedef enum
 {
-    BUTTON_EVENT_RAW_ISR,
-    BUTTON_EVENT_PRESSED
-} button_event_type_t;
+    BTN_IDLE = 0,
+    BTN_BOUNCE_PRESS,
+    BTN_PRESSED,
+    BTN_BOUNCE_RELEASE
+
+} button_fsm_state_t;
 
 typedef struct
 {
-    button_event_type_t type;
     uint64_t timestamp_us;
     int level;
 } button_event_t;
 
-void button_init(QueueHandle_t queue);
+void button_init_interrupt_mode(QueueHandle_t queue);
+void button_init_polling_mode(void);
 int button_read_level(void);
 
 #endif // BUTTON_H

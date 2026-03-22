@@ -4,9 +4,10 @@
 #include <driver/gpio.h>
 
 #define BTN_GPIO            GPIO_NUM_15
-#define DEBOUNCE_DELAY_US   50
+#define DEBOUNCE_DELAY_MS   50
 #define BTN_QUEUE_LEN       10
-#define TAG             "BTN_APP"
+#define POLL_MS             10
+#define TAG                 "BTN_APP"
 
 
 typedef enum {
