@@ -31,28 +31,28 @@ esp_err_t ssd1306_data(i2c_master_dev_handle_t dev, const uint8_t *data, size_t 
 
 void ssd1306_init(i2c_master_dev_handle_t dev)
 {
-    ssd1306_cmd(dev, 0xAE); // Display OFF
+    ESP_ERROR_CHECK(ssd1306_cmd(dev, 0xAE)); // Display OFF
 
-    ssd1306_cmd2(dev, 0xD5, 0x80); // Clock divide
-    ssd1306_cmd2(dev, 0xA8, 0x3F); // Multiplex ratio 1/64
-    ssd1306_cmd2(dev, 0xD3, 0x00); // Display offset
-    ssd1306_cmd(dev, 0x40);        // Display start line
+    ESP_ERROR_CHECK(ssd1306_cmd2(dev, 0xD5, 0x80)); // Clock divide
+    ESP_ERROR_CHECK(ssd1306_cmd2(dev, 0xA8, 0x3F)); // Multiplex ratio 1/64
+    ESP_ERROR_CHECK(ssd1306_cmd2(dev, 0xD3, 0x00)); // Display offset
+    ESP_ERROR_CHECK(ssd1306_cmd(dev, 0x40));        // Display start line
 
-    ssd1306_cmd2(dev, 0x8D, 0x14); // Charge pump ON
-    ssd1306_cmd2(dev, 0x20, 0x00); // Horizontal addressing mode
+    ESP_ERROR_CHECK(ssd1306_cmd2(dev, 0x8D, 0x14)); // Charge pump ON
+    ESP_ERROR_CHECK(ssd1306_cmd2(dev, 0x20, 0x00)); // Horizontal addressing mode
 
-    ssd1306_cmd(dev, 0xA1); // Segment remap
-    ssd1306_cmd(dev, 0xC8); // COM scan direction remapped
+    ESP_ERROR_CHECK(ssd1306_cmd(dev, 0xA1)); // Segment remap
+    ESP_ERROR_CHECK(ssd1306_cmd(dev, 0xC8)); // COM scan direction remapped
 
-    ssd1306_cmd2(dev, 0xDA, 0x12); // COM pins config for 128x64
-    ssd1306_cmd2(dev, 0x81, 0x7F); // Contrast
+    ESP_ERROR_CHECK(ssd1306_cmd2(dev, 0xDA, 0x12)); // COM pins config for 128x64
+    ESP_ERROR_CHECK(ssd1306_cmd2(dev, 0x81, 0x7F)); // Contrast
 
-    ssd1306_cmd2(dev, 0xD9, 0xF1); // Pre-charge
-    ssd1306_cmd2(dev, 0xDB, 0x40); // VCOMH deselect
+    ESP_ERROR_CHECK(ssd1306_cmd2(dev, 0xD9, 0xF1)); // Pre-charge
+    ESP_ERROR_CHECK(ssd1306_cmd2(dev, 0xDB, 0x40)); // VCOMH deselect
 
-    ssd1306_cmd(dev, 0xA4); // Resume RAM content
-    ssd1306_cmd(dev, 0xA6); // Normal display
-    ssd1306_cmd(dev, 0xAF); // Display ON
+    ESP_ERROR_CHECK(ssd1306_cmd(dev, 0xA4)); // Resume RAM content
+    ESP_ERROR_CHECK(ssd1306_cmd(dev, 0xA6)); // Normal display
+    ESP_ERROR_CHECK(ssd1306_cmd(dev, 0xAF)); // Display ON
 }
 
 void ssd1306_set_full_area(i2c_master_dev_handle_t dev)
@@ -110,6 +110,15 @@ void ssd1306_draw_string(i2c_master_dev_handle_t dev, const char *str)
 
 void ssd1306_set_cursor(i2c_master_dev_handle_t dev, uint8_t page, uint8_t col)
 {
+    if (page > 7)
+    {
+        page = 7;
+    }
+    if (col > 127)
+    {
+        col = 127;
+    }
+
     ESP_ERROR_CHECK(ssd1306_cmd(dev, 0xB0 | page));                // page 0..7
     ESP_ERROR_CHECK(ssd1306_cmd(dev, 0x00 | (col & 0x0F)));        // lower column
     ESP_ERROR_CHECK(ssd1306_cmd(dev, 0x10 | ((col >> 4) & 0x0F))); // higher column
