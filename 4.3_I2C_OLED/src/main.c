@@ -4,12 +4,14 @@
 #include "esp_log.h"
 #include "driver/gpio.h"
 #include "driver/i2c_master.h"
+#include "font5x7.h"
 
 #define I2C_MASTER_SCL_IO GPIO_NUM_9
 #define I2C_MASTER_SDA_IO GPIO_NUM_8
 #define I2C_MASTER_NUM I2C_NUM_0 // I2C порт 0
 #define I2C_MASTER_FREQ_HZ 100000
 #define OLED_ADDR 0x3C
+ 
 
 static i2c_master_bus_handle_t bus_handle;
 static i2c_master_dev_handle_t dev_handle;
@@ -28,7 +30,7 @@ static esp_err_t ssd1306_cmd2(i2c_master_dev_handle_t dev, uint8_t cmd, uint8_t 
 static esp_err_t ssd1306_data(i2c_master_dev_handle_t dev, const uint8_t *data, size_t len)
 {
     uint8_t buf[129];
-    if (len > 129)
+    if (len > 128)
     {
         return ESP_ERR_INVALID_SIZE;
     }
@@ -92,6 +94,36 @@ static void ssd1306_clear(i2c_master_dev_handle_t dev)
     }
 }
 
+static const uint8_t *get_char_bitmap(char c)
+{
+    if (c < 32 || c > 127)
+    {
+        c = ' ';
+    }
+
+    return font5x7[c - 32];
+}
+
+static void ssd1306_draw_char(i2c_master_dev_handle_t dev, char c)
+{
+    const uint8_t *bitmap = get_char_bitmap(c);
+
+    ESP_ERROR_CHECK(ssd1306_data(dev, bitmap, 5));
+
+    uint8_t spacing = 0x00;
+    ESP_ERROR_CHECK(ssd1306_data(dev, &spacing, 1));
+}
+
+static void ssd1306_draw_string(i2c_master_dev_handle_t dev, const char *str)
+{
+
+    while (*str)
+    {
+        ssd1306_draw_char(dev, *str);
+        str++;
+    }
+}
+
 void i2c_init()
 {
     i2c_master_bus_config_t i2c_mst_config = {
@@ -114,23 +146,26 @@ void i2c_init()
     ESP_ERROR_CHECK(i2c_master_bus_add_device(bus_handle, &dev_cfg, &dev_handle));
 }
 
+static void ssd1306_set_cursor(i2c_master_dev_handle_t dev, uint8_t page, uint8_t col)
+{
+    ESP_ERROR_CHECK(ssd1306_cmd(dev, 0xB0 | page));                // page 0..7
+    ESP_ERROR_CHECK(ssd1306_cmd(dev, 0x00 | (col & 0x0F)));        // lower column
+    ESP_ERROR_CHECK(ssd1306_cmd(dev, 0x10 | ((col >> 4) & 0x0F))); // higher column
+}
+
+static void ssd1306_print_at(i2c_master_dev_handle_t dev, uint8_t page, uint8_t col, const char *text)
+{
+    ssd1306_set_cursor(dev, page, col);
+    ssd1306_draw_string(dev, text);
+}
+
 void app_main()
 {
     i2c_init();
     ssd1306_init(dev_handle);
     ssd1306_clear(dev_handle);
 
-    uint8_t line[128];
-    for (int i = 0; i < 128; ++i)
-    {
-        line[i] = 0xFF;
-    }
-    ssd1306_set_full_area(dev_handle);
-
-    for (int page = 0; page < 8; ++page)
-    {
-        ssd1306_data(dev_handle, line, 128);
-    }
+    ssd1306_print_at(dev_handle, 3, 20, "Salut, Zooble");
 
     while (1)
     {
