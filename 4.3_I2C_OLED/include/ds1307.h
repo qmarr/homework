@@ -19,4 +19,6 @@ typedef struct
 
 esp_err_t ds1307_init(i2c_master_bus_handle_t bus, i2c_master_dev_handle_t *rtc_handle);
 esp_err_t ds1307_read_time(i2c_master_dev_handle_t rtc_handle, ds1307_datetime_t *dt);
+esp_err_t ds1307_set_time(i2c_master_dev_handle_t rtc_handle, const ds1307_datetime_t *dt);
+esp_err_t ds1307_debug_dump(i2c_master_dev_handle_t rtc_handle); // for test
 #endif
