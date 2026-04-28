@@ -52,10 +52,10 @@ const char *weekday_to_str(uint8_t dow)
         "Wed",
         "Thu",
         "Fri",
-        "Sat"
-    };
+        "Sat"};
 
-    if (dow > 7) {
+    if (dow > 7)
+    {
         return names[0];
     }
 
@@ -92,6 +92,17 @@ void app_main()
     ssd1306_print_at(oled_dev_handle, 0, 0, "Salut, Zooble!");
 
     ESP_ERROR_CHECK(ds1307_init(bus_handle, &clock_dev_handle));
+    ds1307_datetime_t start_time = {
+        .sec = 15,
+        .min = 9,
+        .hour = 19,
+
+        .day_of_week = 3, // Fri, якщо 1=Sun
+        .date = 28,
+        .month = 4,
+        .year = 2026};
+
+    //ESP_ERROR_CHECK(ds1307_set_time(clock_dev_handle, &start_time));
 
     uint64_t last_update_us = 0;
 
@@ -104,8 +115,9 @@ void app_main()
             last_update_us = now_us;
 
             ds1307_datetime_t dt;
-
+            //ESP_ERROR_CHECK(ds1307_debug_dump(clock_dev_handle));
             esp_err_t err = ds1307_read_time(clock_dev_handle, &dt);
+
             if (err == ESP_OK)
             {
                 display_update_time(oled_dev_handle, &dt);
