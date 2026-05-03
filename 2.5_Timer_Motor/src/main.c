@@ -15,17 +15,17 @@
 #define PERIOD_MS   10000   
 #define ON_TIME_MS   3000   
 
-#define LED_GPIO GPIO_NUM_18
+#define MOTOR_GPIO GPIO_NUM_18
 
 static esp_timer_handle_t periodic_timer = NULL;
 static esp_timer_handle_t stop_timer = NULL;
 
-static bool led_is_on = false;
+static bool motor_is_on = false;
 
-static void led_init(void)
+static void motor_init(void)
 {
     gpio_config_t io_conf = {
-        .pin_bit_mask = (1ULL << LED_GPIO),
+        .pin_bit_mask = (1ULL << MOTOR_GPIO),
         .mode = GPIO_MODE_OUTPUT,
         .pull_up_en = GPIO_PULLUP_DISABLE,
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
@@ -33,40 +33,40 @@ static void led_init(void)
     };
 
     ESP_ERROR_CHECK(gpio_config(&io_conf));
-    gpio_set_level(LED_GPIO, 0);
+    gpio_set_level(MOTOR_GPIO, 0);
 }
 
-static void led_set(bool on)
+static void motor_set(bool on)
 {
-    led_is_on = on;
-    gpio_set_level(LED_GPIO, on ? 1 : 0);
+    motor_is_on = on;
+    gpio_set_level(MOTOR_GPIO, on ? 1 : 0);
 }
 
 static void stop_timer_callback(void *arg)
 {
-    if (led_is_on) {
-        led_set(false);
-        ESP_LOGI(TAG, "LED OFF");
+    if (motor_is_on) {
+        motor_set(false);
+        ESP_LOGI(TAG, "MOTOR OFF");
     }
 }
 
 static void periodic_timer_callback(void *arg)
 {
-    if (!led_is_on) {
-        led_set(true);
-        ESP_LOGI(TAG, "LED ON");
+    if (!motor_is_on) {
+        motor_set(true);
+        ESP_LOGI(TAG, "MOTOR ON");
 
         ESP_ERROR_CHECK(
             esp_timer_start_once(stop_timer, ON_TIME_MS * 1000ULL)
         );
     } else {
-        ESP_LOGW(TAG, "Periodic event ignored: LED already ON");
+        ESP_LOGW(TAG, "Periodic event ignored: MOTOR already ON");
     }
 }
 
 void app_main(void)
 {
-    led_init();
+    motor_init();
 
     esp_timer_create_args_t periodic_timer_args = {
         .callback = &periodic_timer_callback,
